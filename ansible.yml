@@ -1,0 +1,122 @@
+---
+- name: for practice
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+
+  # -------------------------------------------------------------------------------------------------------------
+  # using playbook to install nginx
+
+  ---
+- name: for practice
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: installing nginx on ubuntu
+    command: apt install nginx -y
+
+    # ----------------------------------------------------------------------------------------------------------
+
+  # using playbook to uninstall nginx
+---
+  - name: for practice
+    hosts: dev
+    user: ansible
+    become: yes
+    connection: ssh
+    gather_facts: no
+    tasks:
+    - name: uninstalling nginx on ubuntu
+    command: apt remove  nginx -y
+    ---
+# ----------------------------------------------------------------------------------------------------------
+# Tasks section using apt module
+
+---
+  - name: for practice
+    hosts: dev
+    user: ansible
+    become: yes
+    connection: ssh
+    gather_facts: no
+    tasks:
+    - name: install apache2
+      apt:
+      name: apache2
+      state: present
+    - name: start the service
+      service:
+      name: apache2
+      state: started
+
+      # -----------------------------------------------------------------------------------------------------
+      # Tasks section with update and install nginx
+
+---
+- name: check with target
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: update apt apache
+    apt: 
+    update_cache: yes
+  - name: install nginx
+    apt:
+    name: nginx
+    state: present
+  - name: start nginx service
+    service:
+    name: nginx
+    state: started
+# ---------------------------------------------------------------------------------------------------------------
+# Tasks section with variable section
+---
+- name: Tasks section with variable section
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+     web_package: nginx
+     web_services: nginx
+     tasks:
+     - name: update apt update_cache
+       apt:
+       update_cache: yes
+- name: install web server
+  apt:
+- name: "{{web_package}}"
+  state: present
+- name: start web server service
+  service:
+  name: "{{web_service}}"
+  state: started
+# -----------------------------------------------------------------------------------------------------------------
+# Task section with action module
+
+---
+- name: Tasks section with action module
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name:
+
+
+
+
+
+
+
+
