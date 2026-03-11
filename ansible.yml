@@ -9,7 +9,7 @@
   # -------------------------------------------------------------------------------------------------------------
   # using playbook to install nginx
 
-  ---
+---
 - name: for practice
   hosts: dev
   user: ansible
@@ -33,7 +33,7 @@
     tasks:
     - name: uninstalling nginx on ubuntu
     command: apt remove  nginx -y
-    ---
+    
 # ----------------------------------------------------------------------------------------------------------
 # Tasks section using apt module
 
@@ -111,7 +111,197 @@
   connection: ssh
   gather_facts: no
   tasks:
-- name:
+- name: update apt cache
+  action: apt update_cache=yes
+- name: install nginx
+  action: apt name=nginx state=present
+- name: start nginx service
+  action: service name=nginx state=started
+  # -----------------------------------------------------------------------------------------------------------------
+
+  # variable section with action module
+---
+- name: variable section with action module
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    web_package: nginx
+    web_service: nginx
+  tasks: 
+  - name: update apt cache
+    action: apt update_cache=yes
+  - name: install web server
+    action: apt name={{web_package}} state=present
+  - name: start web server service
+    action: service name={{web_service}} state=started
+    # -----------------------------------------------------------------------------------------------------
+
+    # notify and handlers sections
+---
+- name: notify and handlers sections
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name: update apt cache
+  apt:
+  update_cache: yes
+- name: install nginx
+  apt:
+  name: nginx
+  state: present
+  notify: start nginx
+  handlers:
+- name: start nginx
+  services:
+  name: nginx
+  state: started
+  # ------------------------------------------------------------------------------------------------------------
+
+  # Install multiple packages using loop script
+---
+- name: Install multiple packages using loop script
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name: update apt cache
+  apt:
+- name: Install required packages
+  apt:
+  name: "{{ item }}"
+  state: present
+  loop:
+  - openjdk-17-jdk
+  - git
+  - curl
+  - unzip
+
+  # ----------------------------------------------------------------------------------------------------------------------------
+# script with condition on os familyy
+---
+- name: script with condition on os family
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Install apache2 on Debian
+    apt:
+    name: apache2
+    state: present
+    update_cache: yes
+    when: ansible_os_family == "Debian"
+  - name: Install httpd on RedHat
+    yum:
+    name: httpd
+    state: present
+    when: ansible_os_family == "RedHat"
+    
+    # -----------------------------------------------------------------------------------------------------------------------------
+    # Ignore the error in tasks
+---
+- name: Ignore the error in tasks 
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name: check for errors in task
+  command: /bin/false
+  ignore_errors: yes
+
+# --------------------------------------------------------------------------------------------------------------------------
+# copy the file to worker nodes
+---
+- name: copy the file to worker nodes
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name: Copy jen.sh to worker nodes
+  copy:
+  src: ./jen.sh
+  dest: /home/ansible/jen.sh
+
+  # -----------------------------------------------------------------------------------------------------------------------------------
+  # copy file and execute in the bash shell
+---
+- name: Copy file and execute in the bash shell
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Copy jen.sh to worker nodes
+    copy:
+    src: ./jen.sh
+    dest: /home/ansible/jen.sh
+    mode: '0755'
+- name: Execute jen.sh script
+  command: /home/ansible/jen.sh
+
+  # -----------------------------------------------------------------------------------------------------------------
+  # Docker image pull and Run
+---
+- name: Docker image pull and Run
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+- name: pull nginx image
+  docker_image:
+  name: nginx
+  source: pull
+- name: Run nginx container
+  docker_container:
+  name: nginx_web
+  image: nginx
+  state: started
+  ports:
+  - "8000:80"
+
+  # ------------------------------------------------------------------------------------------------------------
+
+  # pull the src from the git to given directory
+---
+- name: Clone git repo to server
+  hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Ensure git is installed
+    apt:
+    name: git 
+    state: present
+    update_cache: yes
+  - name: Clone reposiroty
+    git:
+    repo: 'https://github.com/Thanuu55/repo.git'
+    dest: /opt/myrepo
+    version: main
+    update: yes
+
+    # -------------------------------------------------------------------------------------------------------
+
+
+
 
 
 
